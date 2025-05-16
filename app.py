@@ -9,6 +9,8 @@ import os
 from werkzeug.utils import secure_filename
 import uuid
 from io import BytesIO
+from crypto_utils import encrypt_data
+from crypto_utils import decrypt_data
 
 app = Flask(__name__)
 
@@ -137,6 +139,12 @@ def upload_file():
         if file:
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
+
+            # Encrypt file before uploading
+            file_data = file.read()
+            encrypted_data = encrypt_data(file_data)
+            encrypted_stream = BytesIO(encrypted_data)
+
             
             # Upload to S3
             s3.upload_fileobj(
@@ -201,6 +209,11 @@ def download_file(file_id):
     file_obj = BytesIO()
     s3.download_fileobj(app.config["S3_BUCKET"], s3_key, file_obj)
     file_obj.seek(0)
+
+    # Decrypt the file
+    decrypted_data = decrypt_data(file_obj.read())
+    decrypted_stream = BytesIO(decrypted_data)
+
     
     return send_file(
         file_obj,
