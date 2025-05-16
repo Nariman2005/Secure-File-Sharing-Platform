@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container auth-container">
+    <h2 class="page-title">My Files</h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="auth-card">
+        <a href="{{ url_for('upload_file') }}" class="btn btn-dark mb-3">Upload New File</a>
+
+        {% if files %}
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Upload Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file[1] }}</td>
+                    <td>{{ file[3] }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', file_id=file[0]) }}"
+                            class="btn btn-sm btn-success">Download</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center mt-4">You haven't uploaded any files yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

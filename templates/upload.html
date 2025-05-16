@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container auth-container">
+    <h2 class="page-title">Upload File</h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="auth-card">
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.file.label }}
+                {{ form.file(class="form-control") }}
+            </div>
+            <div class="form-group mt-3">
+                {{ form.submit(class="btn btn-dark") }}
+            </div>
+            <a href="{{ url_for('my_files') }}" class="btn btn-secondary mt-3">Back to Files</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

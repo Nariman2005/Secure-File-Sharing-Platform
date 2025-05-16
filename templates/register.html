@@ -1,9 +1,9 @@
 {% extends 'app.html' %}
 {% block content %}
 
-<div class="container">
-    <h2>Register form</h2>
-    <form action="/register" method="POST">
+<div class="container auth-container">
+    <h2 class="page-title">Register form</h2>
+    <form action="/register" method="POST" class="auth-card">
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.name.label(for="name")}}

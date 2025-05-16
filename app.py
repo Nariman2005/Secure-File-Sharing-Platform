@@ -1,9 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, session, flash
+from flask import Flask, render_template, redirect, url_for, session, flash, request, send_file
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField
+from wtforms import StringField, PasswordField, SubmitField, FileField
 from wtforms.validators import DataRequired, Email, ValidationError
 import bcrypt
 from flask_mysqldb import MySQL
+import boto3
+import os
+from werkzeug.utils import secure_filename
+import uuid
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -14,7 +19,25 @@ app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'my_schema'
 app.secret_key = 'your_secret_key_here'
 
+# AWS S3 Configuration
+app.config['S3_BUCKET'] = 'your-bucket-name'
+app.config['S3_KEY'] = 'your-access-key'
+app.config['S3_SECRET'] = 'your-secret-key'
+app.config['S3_LOCATION'] = 'https://{}.s3.amazonaws.com/'.format(app.config['S3_BUCKET'])
+
+
 mysql = MySQL(app)
+
+# Initialize S3 client
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=app.config['S3_KEY'],
+    aws_secret_access_key=app.config['S3_SECRET']
+)
+
+class UploadForm(FlaskForm):
+    file = FileField("File", validators=[DataRequired()])
+    submit = SubmitField("Upload")
 
 class RegisterForm(FlaskForm):
     name = StringField("Name",validators=[DataRequired()])
@@ -102,8 +125,88 @@ def logout():
     flash("You have been logged out successfully.")
     return redirect(url_for('login'))
 
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    form = UploadForm()
+    if form.validate_on_submit():
+        file = form.file.data
+        
+        if file:
+            filename = secure_filename(file.filename)
+            unique_filename = f"{uuid.uuid4()}_{filename}"
+            
+            # Upload to S3
+            s3.upload_fileobj(
+                file,
+                app.config["S3_BUCKET"],
+                unique_filename,
+                ExtraArgs={
+                    "ContentType": file.content_type
+                }
+            )
+            
+            # Store file info in database
+            user_id = session['user_id']
+            cursor = mysql.connection.cursor()
+            cursor.execute(
+                "INSERT INTO user_files (user_id, file_name, s3_key) VALUES (%s, %s, %s)",
+                (user_id, filename, unique_filename)
+            )
+            mysql.connection.commit()
+            cursor.close()
+            
+            flash("File uploaded successfully!")
+            return redirect(url_for('my_files'))
+    
+    return render_template('upload.html', form=form)
 
+@app.route('/my-files')
+def my_files():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id, file_name, s3_key, upload_date FROM user_files WHERE user_id = %s", (user_id,))
+    files = cursor.fetchall()
+    cursor.close()
+    
+    return render_template('my_files.html', files=files)
 
+@app.route('/download/<int:file_id>')
+def download_file(file_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT file_name, s3_key FROM user_files WHERE id = %s AND user_id = %s", 
+        (file_id, user_id)
+    )
+    file_info = cursor.fetchone()
+    cursor.close()
+    
+    if not file_info:
+        flash("File not found or you don't have permission to download it.")
+        return redirect(url_for('my_files'))
+    
+    file_name = file_info[0]
+    s3_key = file_info[1]
+    
+    # Get file from S3
+    file_obj = BytesIO()
+    s3.download_fileobj(app.config["S3_BUCKET"], s3_key, file_obj)
+    file_obj.seek(0)
+    
+    return send_file(
+        file_obj,
+        as_attachment=True,
+        download_name=file_name
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
