@@ -9,8 +9,8 @@ import os
 from werkzeug.utils import secure_filename
 import uuid
 from io import BytesIO
-from crypto_utils import encrypt_data
-from crypto_utils import decrypt_data
+from crypto_utils import encrypt_data, compute_hash
+from crypto_utils import decrypt_data, verify_hash
 
 app = Flask(__name__)
 
@@ -140,9 +140,16 @@ def upload_file():
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
 
-            # Encrypt file before uploading
+
+            # Read file data and hash
             file_data = file.read()
-            encrypted_data = encrypt_data(file_data)
+            file_hash = compute_hash(file_data)
+
+            # Append hash to data before encryption (e.g. as header)
+            combined_data = f"{file_hash}::".encode() + file_data
+
+            # Encrypt file before uploading
+            encrypted_data = encrypt_data(combined_data)
             encrypted_stream = BytesIO(encrypted_data)
 
             
