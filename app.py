@@ -217,16 +217,26 @@ def download_file(file_id):
     s3.download_fileobj(app.config["S3_BUCKET"], s3_key, file_obj)
     file_obj.seek(0)
 
-    # Decrypt the file
-    decrypted_data = decrypt_data(file_obj.read())
-    decrypted_stream = BytesIO(decrypted_data)
+    try:
+        decrypted_data = decrypt_data(file_obj.read())
 
+        # Split the hash from the content
+        header, actual_file_data = decrypted_data.split(b"::", 1)
+        original_hash = header.decode()
+
+        if not verify_hash(actual_file_data, original_hash):
+            flash("File integrity check failed! The file may have been tampered with.", "danger")
+            return redirect(url_for('my_files'))
     
-    return send_file(
-        file_obj,
-        as_attachment=True,
-        download_name=file_name
-    )
+            return send_file(
+            file_obj,
+            as_attachment=True,
+            download_name=file_name
+         )
+
+    except Exception as e:
+        flash("An error occurred during decryption or integrity check.", "danger")
+        return redirect(url_for('my_files'))
 
 if __name__ == '__main__':
     app.run(debug=True)
