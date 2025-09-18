@@ -1,14 +1,16 @@
 {% extends 'app.html' %}
 {% block content %}
 
-<div class="container auth-container">
-    <h2 class="page-title">Login</h2>
+<div class="container auth-container slide-up">
+    <h2 class="page-title fade-in">Login to Your Account</h2>
+    <p class="page-subtitle fade-in delay-100">Welcome back! Please sign in to continue.</p>
 
-    <div class="auth-card">
+    <div class="auth-card scale-in delay-200">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <div class="alert alert-danger">
-            <ul>
+        <div class="alert alert-danger shake">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <ul class="mb-0">
                 {% for message in messages %}
                 <li>{{ message }}</li>
                 {% endfor %}
@@ -17,37 +19,202 @@
         {% endif %}
         {% endwith %}
 
-        <form action="/login" method="POST">
+        <form action="/login" method="POST" class="login-form">
             {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.email.label(for="email")}}
-                {{ form.email(id="email", class="form-control")}}
 
+            <div class="form-group slide-right delay-300">
+                {{ form.email.label(for="email", class="form-label")}}
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    {{ form.email(id="email", class="form-control", placeholder="Enter your email")}}
+                </div>
                 {% if form.email.errors %}
-                <ul class="text-danger">
+                <div class="error-message shake">
                     {% for error in form.email.errors %}
-                    <li>{{ error }}</li>
+                    <small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                     {% endfor %}
-                </ul>
+                </div>
                 {% endif %}
             </div>
 
-            <div class="form-group">
-                {{ form.password.label(for="password")}}
-                {{ form.password(id="password", class="form-control")}}
-
+            <div class="form-group slide-right delay-400">
+                {{ form.password.label(for="password", class="form-label")}}
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    {{ form.password(id="password", class="form-control", placeholder="Enter your password")}}
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye" id="password-eye"></i>
+                    </button>
+                </div>
                 {% if form.password.errors %}
-                <ul class="text-danger">
+                <div class="error-message shake">
                     {% for error in form.password.errors %}
-                    <li>{{ error }}</li>
+                    <small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                     {% endfor %}
-                </ul>
+                </div>
                 {% endif %}
             </div>
-            {{ form.submit(class="btn btn-dark mt-4")}}
-            <a href="/register" class="btn btn-secondary mt-4">Register page</a>
+
+            <div class="form-actions slide-up delay-500">
+                {{ form.submit(class="btn btn-primary btn-submit hover-lift", value="Sign In")}}
+                <div class="auth-links">
+                    <p class="text-center mt-3 mb-0 fade-in delay-600">
+                        Don't have an account?
+                        <a href="/register" class="auth-link hover-scale">Create one here</a>
+                    </p>
+                </div>
+            </div>
         </form>
     </div>
 </div>
+
+<style>
+    /* Login specific styles */
+    .auth-container {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+        font-size: 1rem;
+        z-index: 2;
+    }
+
+    .form-control {
+        padding-left: 3rem;
+        height: 3rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--gray-400);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+        color: var(--primary);
+    }
+
+    .btn-submit {
+        width: 100%;
+        height: 3rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .error-message {
+        margin-top: 0.5rem;
+    }
+
+    .auth-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    /* Loading state */
+    .btn-submit.loading {
+        pointer-events: none;
+    }
+
+    .btn-submit.loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 50%;
+        margin-left: -10px;
+        margin-top: -10px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+</style>
+
+<script>
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(fieldId + '-eye');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.classList.remove('fa-eye');
+            eye.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            eye.classList.remove('fa-eye-slash');
+            eye.classList.add('fa-eye');
+        }
+    }
+
+    // Add loading state to form submission
+    document.querySelector('.login-form').addEventListener('submit', function (e) {
+        const submitBtn = this.querySelector('.btn-submit');
+        submitBtn.classList.add('loading');
+        submitBtn.innerHTML = '<span>Signing In...</span>';
+    });
+
+    // Add focus animations to form fields
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function () {
+            this.closest('.input-wrapper').style.transform = 'scale(1.02)';
+        });
+
+        input.addEventListener('blur', function () {
+            this.closest('.input-wrapper').style.transform = 'scale(1)';
+        });
+    });
+</script>
 
 {% endblock %}

@@ -1,269 +1,1125 @@
 {% extends 'app.html' %}
+
 {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <!-- Animated Background -->
+    <div class="hero-background">
+        <div class="floating-icons">
+            <i class="fas fa-shield-alt floating-icon" style="--delay: 0s; --x: 10%; --y: 20%;"></i>
+            <i class="fas fa-lock floating-icon" style="--delay: 1s; --x: 85%; --y: 30%;"></i>
+            <i class="fas fa-cloud floating-icon" style="--delay: 2s; --x: 15%; --y: 70%;"></i>
+            <i class="fas fa-fingerprint floating-icon" style="--delay: 1.5s; --x: 80%; --y: 80%;"></i>
+            <i class="fas fa-file-alt floating-icon" style="--delay: 0.5s; --x: 50%; --y: 10%;"></i>
+            <i class="fas fa-user-shield floating-icon" style="--delay: 2.5s; --x: 20%; --y: 90%;"></i>
+        </div>
+        <div class="gradient-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+
+    <div class="container hero-content">
+        <div class="text-center">
+            <!-- Main Icon with Pulse Animation -->
+            <div class="mb-4 hero-icon-wrapper slide-up">
+                <div class="hero-main-icon">
+                    <i class="fas fa-shield-alt pulse-slow"></i>
+                    <div class="icon-glow"></div>
+                    <div class="icon-rings">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Animation Title -->
+            <h1 class="hero-title typewriter slide-up delay-200" id="typewriter-title">
+                <span class="gradient-text">SecureShare</span>
+            </h1>
+
+            <!-- Animated Subtitle -->
+            <div class="hero-subtitle-wrapper slide-up delay-400">
+                <p class="hero-subtitle">
+                    <span class="highlight-text">Share your files</span> with
+                    <span class="rotating-text">
+                        <span class="text-item active">military-grade encryption</span>
+                        <span class="text-item">enterprise security</span>
+                        <span class="text-item">zero-knowledge protection</span>
+                        <span class="text-item">end-to-end encryption</span>
+                    </span>
+                    <br>
+                    <span class="fade-in-word" style="animation-delay: 1s;">Your</span>
+                    <span class="fade-in-word" style="animation-delay: 1.2s;">privacy</span>
+                    <span class="fade-in-word" style="animation-delay: 1.4s;">is</span>
+                    <span class="fade-in-word" style="animation-delay: 1.6s;">our</span>
+                    <span class="fade-in-word highlight-text" style="animation-delay: 1.8s;">priority</span>
+                </p>
+            </div>
+
+            <!-- Enhanced Buttons with Animations -->
+            <div class="hero-buttons slide-up delay-600">
+                {% if 'user_id' in session %}
+                <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg btn-glow hover-lift">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    <span>Upload Files</span>
+                    <div class="btn-particles"></div>
+                </a>
+                <a href="{{ url_for('my_files') }}" class="btn btn-outline-primary btn-lg btn-magnetic hover-lift">
+                    <i class="fas fa-folder me-2"></i>
+                    <span>My Files</span>
+                </a>
+                {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg btn-glow hover-lift">
+                    <i class="fas fa-rocket me-2"></i>
+                    <span>Get Started Free</span>
+                    <div class="btn-particles"></div>
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg btn-magnetic hover-lift">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    <span>Sign In</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="trust-indicators slide-up delay-800">
+                <div class="trust-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>256-bit AES Encryption</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Zero-Knowledge Architecture</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>GDPR Compliant</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title slide-up">
+                <span class="gradient-text">Why Choose SecureShare?</span>
+            </h2>
+            <p class="section-subtitle slide-up delay-100">Advanced security features to protect your data</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card-enhanced hover-lift slide-up delay-200">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="icon-bg-effect"></div>
+                </div>
+                <h4 class="feature-title">End-to-End Encryption</h4>
+                <p class="feature-description">Files are encrypted before upload and decrypted only when you download
+                    them.</p>
+                <div class="feature-learn-more">
+                    <span>Learn more <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <div class="feature-card-enhanced hover-lift slide-up delay-300">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <div class="icon-bg-effect"></div>
+                </div>
+                <h4 class="feature-title">File Integrity</h4>
+                <p class="feature-description">Each file includes hash verification to ensure it hasn't been tampered
+                    with.</p>
+                <div class="feature-learn-more">
+                    <span>Learn more <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <div class="feature-card-enhanced hover-lift slide-up delay-400">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #1e40af, #1e3a8a);">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="icon-bg-effect"></div>
+                </div>
+                <h4 class="feature-title">Secure Cloud Storage</h4>
+                <p class="feature-description">Files are stored in encrypted form on secure AWS S3 infrastructure.</p>
+                <div class="feature-learn-more">
+                    <span>Learn more <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h3 class="section-title slide-up">Security by the Numbers</h3>
+            <div class="section-line slide-up delay-100"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card-enhanced hover-lift slide-up delay-200" data-target="256">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="stat-number" data-count="256">0</div>
+                <div class="stat-suffix">-bit</div>
+                <div class="stat-label">Encryption</div>
+                <div class="stat-description">Military-grade AES encryption</div>
+            </div>
+
+            <div class="stat-card-enhanced hover-lift slide-up delay-300" data-target="100">
+                <div class="stat-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-number" data-count="100">0</div>
+                <div class="stat-suffix">%</div>
+                <div class="stat-label">Privacy Protected</div>
+                <div class="stat-description">Zero-knowledge architecture</div>
+            </div>
+
+            <div class="stat-card-enhanced hover-lift slide-up delay-400" data-target="24">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-number" data-count="24">0</div>
+                <div class="stat-suffix">/7</div>
+                <div class="stat-label">Secure Access</div>
+                <div class="stat-description">Always available, always secure</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="cta-background">
+        <div class="cta-particles"></div>
+        <div class="cta-glow"></div>
+    </div>
+
+    <div class="container">
+        <div class="cta-content">
+            <div class="cta-card scale-in delay-200">
+                <div class="cta-icon bounce-in delay-400">
+                    <i class="fas fa-rocket"></i>
+                </div>
+
+                <h3 class="cta-title slide-up delay-300">Ready to start sharing securely?</h3>
+
+                <p class="cta-description slide-up delay-400">
+                    Join <span class="highlight-text">thousands of users</span> who trust SecureShare
+                    with their most important files.
+                </p>
+
+                <div class="cta-features slide-up delay-500">
+                    <div class="cta-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Free account setup</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check"></i>
+                        <span>No credit card required</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Instant file sharing</span>
+                    </div>
+                </div>
+
+                {% if not 'user_id' in session %}
+                <div class="cta-buttons slide-up delay-600">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg btn-glow">
+                        <i class="fas fa-star me-2"></i>
+                        <span>Create Free Account</span>
+                        <div class="btn-particles"></div>
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg btn-magnetic">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        <span>Login</span>
+                    </a>
+                </div>
+                {% else %}
+                <div class="cta-buttons slide-up delay-600">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg btn-glow">
+                        <i class="fas fa-upload me-2"></i>
+                        <span>Upload Your First File</span>
+                        <div class="btn-particles"></div>
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="cta-security slide-up delay-700">
+                    <i class="fas fa-lock me-2"></i>
+                    <span>Your data is encrypted and secure</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <style>
-    /* Modern CSS with animations and responsive design */
-    :root {
-        --primary: #1a5d1a;
-        --primary-dark: #0f360f;
-        --secondary: #2e7d32;
-        --dark: #121212;
-        --light: #ffffff;
-        --gray: #f5f5f5;
-    }
+    /* Enhanced Index Page Styles */
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Inter', sans-serif;
-    }
-
-    body {
-        min-height: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-        background-attachment: fixed;
-        color: var(--dark);
-        line-height: 1.6;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    /* Navigation */
-    .navbar {
-        background-color: var(--dark);
-        padding: 1rem 0;
-        position: fixed;
-        width: 100%;
-        top: 0;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .nav-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .logo {
-        color: var(--light);
-        font-size: 1.5rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    .logo:hover {
-        color: var(--primary);
-    }
-
-    /* Auth Forms */
-    .auth-container {
+    /* Hero Background Effects */
+    .hero-section {
+        position: relative;
         min-height: 100vh;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        padding-top: 3rem;
-        padding: 2rem;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
+        overflow: hidden;
     }
 
-    .auth-card {
-        background: var(--light);
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-        animation: slideUp 0.5s ease;
-    }
-
-    .auth-card h2 {
-        color: var(--primary);
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .page-title {
-        text-align: center;
-        margin-bottom: 2rem;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--light);
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-        position: relative;
+    .hero-background {
+        position: absolute;
         top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
     }
 
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: var(--dark);
-    }
-
-    .form-group input {
+    .floating-icons {
+        position: absolute;
         width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        transition: border-color 0.3s ease;
+        height: 100%;
     }
 
-    .form-group input:focus {
-        outline: none;
-        border-color: var(--primary);
+    .floating-icon {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.1);
+        font-size: 2rem;
+        animation: float-random 8s ease-in-out infinite;
+        animation-delay: var(--delay);
+        left: var(--x);
+        top: var(--y);
     }
 
-    .btn {
-        background-color: var(--primary);
-        color: var(--light);
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+    @keyframes float-random {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        25% {
+            transform: translateY(-20px) rotate(5deg);
+        }
+
+        50% {
+            transform: translateY(-10px) rotate(-5deg);
+        }
+
+        75% {
+            transform: translateY(-30px) rotate(3deg);
+        }
+    }
+
+    .gradient-orbs {
+        position: absolute;
         width: 100%;
-        font-size: 1rem;
+        height: 100%;
+    }
+
+    .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.3;
+        animation: float-orb 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, #3b82f6, #1d4ed8);
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .orb-2 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, #06b6d4, #0891b2);
+        top: 60%;
+        right: 10%;
+        animation-delay: 7s;
+    }
+
+    .orb-3 {
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, #1e40af, #3730a3);
+        bottom: 20%;
+        left: 50%;
+        animation-delay: 14s;
+    }
+
+    @keyframes float-orb {
+
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        33% {
+            transform: translate(30px, -30px) scale(1.1);
+        }
+
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Hero Icon Effects */
+    .hero-icon-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2rem;
+    }
+
+    .hero-main-icon {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+        z-index: 3;
+    }
+
+    .icon-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+        border-radius: 50%;
+        animation: glow-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse {
+
+        0%,
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.3;
+        }
+
+        50% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.6;
+        }
+    }
+
+    .icon-rings {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .ring {
+        position: absolute;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        animation: ring-expand 4s ease-out infinite;
+    }
+
+    .ring-1 {
+        width: 140px;
+        height: 140px;
+        top: -70px;
+        left: -70px;
+        animation-delay: 0s;
+    }
+
+    .ring-2 {
+        width: 180px;
+        height: 180px;
+        top: -90px;
+        left: -90px;
+        animation-delay: 1s;
+    }
+
+    .ring-3 {
+        width: 220px;
+        height: 220px;
+        top: -110px;
+        left: -110px;
+        animation-delay: 2s;
+    }
+
+    @keyframes ring-expand {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        50% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1.2);
+            opacity: 0;
+        }
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Typewriter Effect */
+    .typewriter {
+        overflow: hidden;
+        border-right: 3px solid white;
+        white-space: nowrap;
+        margin: 0 auto;
+        animation: typing 3s steps(11, end), blink-caret 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+        from {
+            width: 0;
+        }
+
+        to {
+            width: 100%;
+        }
+    }
+
+    @keyframes blink-caret {
+
+        from,
+        to {
+            border-color: transparent;
+        }
+
+        50% {
+            border-color: white;
+        }
+    }
+
+    /* Rotating Text */
+    .rotating-text {
+        display: inline-block;
+        position: relative;
+        height: 2em;
+        overflow: visible;
+        vertical-align: bottom;
+        min-width: 250px;
+    }
+
+    .text-item {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease;
+        color: #fbbf24;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .text-item.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Highlight Text */
+    .highlight-text {
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         font-weight: 600;
     }
 
-    .btn:hover {
-        background-color: var(--primary-dark);
+    /* Fade in words */
+    .fade-in-word {
+        opacity: 0;
+        animation: fadeInWord 0.6s ease forwards;
     }
 
-    /* Home Page */
-    .hero {
-        padding: 8rem 0 4rem;
-        text-align: center;
-        animation: fadeIn 1s ease;
+    @keyframes fadeInWord {
+        to {
+            opacity: 1;
+        }
     }
 
-    .hero h1 {
-        font-size: 3rem;
+    /* Enhanced Buttons */
+    .btn-glow {
+        position: relative;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border: none;
+        color: white !important;
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .btn-glow:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Hero Subtitle Styling */
+    .hero-subtitle {
+        font-size: 1.4rem;
+        color: rgba(255, 255, 255, 0.95);
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+
+    .hero-subtitle .fade-in-word {
+        color: #e0e7ff;
+    }
+
+    .btn-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+    }
+
+    .btn-magnetic {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .btn-magnetic:hover {
+        transform: translateY(-5px) scale(1.05);
+    }
+
+    /* Trust Indicators */
+    .trust-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .trust-item i {
+        color: #3b82f6;
+        font-size: 1rem;
+    }
+
+    /* Section Styling */
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
         margin-bottom: 1rem;
-        color: var(--light);
-        animation: fadeIn 1s ease;
     }
 
-    .hero p {
+    .section-subtitle {
         font-size: 1.2rem;
+        color: var(--gray-600);
         max-width: 600px;
         margin: 0 auto;
-        color: var(--light);
-        opacity: 0.9;
-        animation: fadeIn 1s ease 0.3s forwards;
     }
 
-    .file-upload-section {
-        padding: 4rem 0;
-        background: var(--light);
-        border-radius: 10px;
-        margin: 2rem auto;
-        max-width: 800px;
+    .section-line {
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        margin: 0 auto 2rem;
+        border-radius: 2px;
     }
 
-    .upload-area {
-        border: 2px dashed var(--primary);
-        border-radius: 10px;
-        padding: 2rem;
+    /* Enhanced Feature Cards */
+    .feature-card-enhanced {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 3rem 2rem;
         text-align: center;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin: 1rem;
+        border: 1px solid var(--gray-200);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        overflow: hidden;
     }
 
-    .upload-area:hover {
-        background-color: rgba(26, 93, 26, 0.1);
+    .feature-card-enhanced:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     }
 
-    .upload-icon {
-        font-size: 3rem;
+    .feature-icon-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2rem;
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-radius: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .icon-bg-effect {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card-enhanced:hover .icon-bg-effect {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    .feature-learn-more {
+        margin-top: 1.5rem;
         color: var(--primary);
-        margin-bottom: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    /* Animations */
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+    .feature-card-enhanced:hover .feature-learn-more {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-        to {
-            opacity: 1;
+    /* Enhanced Stats Section */
+    .stats-section {
+        padding: 5rem 0;
+        background: white;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .stat-card-enhanced {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 2rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        border: 1px solid var(--gray-200);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card-enhanced:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin: 0 auto 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--gray-800);
+        line-height: 1;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .stat-suffix {
+        font-size: 1.5rem;
+        color: var(--primary);
+        font-weight: 600;
+        display: inline;
+    }
+
+    .stat-label {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin: 0.5rem 0;
+    }
+
+    .stat-description {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin: 0;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        position: relative;
+        padding: 6rem 0;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        overflow: hidden;
+    }
+
+    .cta-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+    }
+
+    .cta-particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image:
+            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 300px 300px, 400px 400px, 250px 250px;
+        animation: particles-float 20s ease-in-out infinite;
+    }
+
+    @keyframes particles-float {
+
+        0%,
+        100% {
             transform: translateY(0);
         }
-    }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
+        50% {
+            transform: translateY(-20px);
         }
     }
 
-    /* Custom button styling for homepage */
-    .hero .btn {
-        display: block;
-        max-width: 200px;
-        margin: 0.5rem auto;
+    .cta-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+        border-radius: 50%;
+        animation: cta-glow-pulse 8s ease-in-out infinite;
     }
 
-    .hero .btn-dark {
-        background-color: var(--dark);
+    @keyframes cta-glow-pulse {
+
+        0%,
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.3;
+        }
+
+        50% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.6;
+        }
     }
 
-    .hero .btn-dark:hover {
-        background-color: #2a2a2a;
+    .cta-content {
+        position: relative;
+        z-index: 2;
     }
 
-    .hero .btn-secondary {
-        background-color: var(--secondary);
+    .cta-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 2rem;
+        padding: 4rem 3rem;
+        text-align: center;
+        max-width: 700px;
+        margin: 0 auto;
+        color: white;
     }
 
-    .hero .btn-secondary:hover {
-        background-color: #225f25;
+    .cta-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 2rem;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    .cta-description {
+        font-size: 1.2rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+
+    .cta-features {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .cta-feature {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .cta-feature i {
+        color: #3b82f6;
+        font-size: 1rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        background: transparent;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+    }
+
+    .cta-security {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
     }
 
     /* Responsive Design */
     @media (max-width: 768px) {
-        .hero h1 {
+        .hero-section {
+            min-height: 90vh;
+            padding: 2rem 0;
+        }
+
+        .hero-main-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 2.5rem;
+        }
+
+        .typewriter {
             font-size: 2rem;
         }
 
-        .hero p {
-            font-size: 1rem;
+        .trust-indicators {
+            gap: 1rem;
         }
 
-        .auth-container {
-            padding: 1rem;
+        .trust-item {
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .cta-card {
+            padding: 3rem 2rem;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+
+        .cta-features {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cta-buttons .btn {
+            width: 100%;
+            max-width: 300px;
         }
     }
 </style>
 
-<div class="container auth-container">
-    <div class="hero">
-        <h1>Welcome to File Share</h1>
-        <p>A secure platform for managing and sharing your files in the cloud</p>
+<script>
+    // Rotating text animation
+    function rotateText() {
+        const textItems = document.querySelectorAll('.text-item');
+        let currentIndex = 0;
 
-        <div class="mt-4">
-            <a href="{{ url_for('login') }}" class="btn btn-dark">Login</a>
-            <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
-        </div>
-    </div>
-</div>
+        // Ensure first item is visible
+        if (textItems.length > 0) {
+            textItems[0].classList.add('active');
+        }
 
+        setInterval(() => {
+            textItems[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % textItems.length;
+            textItems[currentIndex].classList.add('active');
+        }, 3000);
+    }
+
+    // Counter animation for stats
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number[data-count]');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-count'));
+                    let current = 0;
+                    const increment = target / 50;
+
+                    const updateCounter = () => {
+                        if (current < target) {
+                            current += increment;
+                            counter.textContent = Math.ceil(current);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+
+                    updateCounter();
+                    observer.unobserve(counter);
+                }
+            });
+        });
+
+        counters.forEach(counter => observer.observe(counter));
+    }
+
+    // Particle effect for buttons
+    function createParticles(button) {
+        const particles = button.querySelector('.btn-particles');
+        if (!particles) return;
+
+        for (let i = 0; i < 6; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.cssText = `
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-${i} 2s ease-out forwards;
+        `;
+
+            particles.appendChild(particle);
+
+            setTimeout(() => particle.remove(), 2000);
+        }
+    }
+
+    // Add particle animations
+    const style = document.createElement('style');
+    style.textContent = `
+    @keyframes particle-0 { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(-20px, -30px) scale(0); opacity: 0; } }
+    @keyframes particle-1 { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(20px, -30px) scale(0); opacity: 0; } }
+    @keyframes particle-2 { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(-30px, 20px) scale(0); opacity: 0; } }
+    @keyframes particle-3 { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(30px, 20px) scale(0); opacity: 0; } }
+    @keyframes particle-4 { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(0, -40px) scale(0); opacity: 0; } }
+    @keyframes particle-5 { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(0, 40px) scale(0); opacity: 0; } }
+`;
+    document.head.appendChild(style);
+
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', function () {
+        rotateText();
+        animateCounters();
+
+        // Add click effect to glow buttons
+        document.querySelectorAll('.btn-glow').forEach(button => {
+            button.addEventListener('click', function (e) {
+                createParticles(this);
+            });
+        });
+    });
+</script>
 {% endblock %}

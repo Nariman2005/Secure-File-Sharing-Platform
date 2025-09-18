@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, Email, ValidationError
 import bcrypt
 from flask_mysqldb import MySQL
 import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
 import os
 from werkzeug.utils import secure_filename
 import uuid
@@ -28,15 +29,23 @@ app.config['S3_KEY'] = Config.S3_KEY
 app.config['S3_SECRET'] = Config.S3_SECRET
 app.config['S3_LOCATION'] = Config.S3_LOCATION
 
-
 mysql = MySQL(app)
 
-# Initialize S3 client
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=app.config['S3_KEY'],
-    aws_secret_access_key=app.config['S3_SECRET']
-)
+# Initialize S3 client with explicit region
+try:
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=app.config['S3_KEY'],
+        aws_secret_access_key=app.config['S3_SECRET'],
+        region_name='us-east-1'  # Add explicit region
+    )
+    # Test S3 connection
+    s3.head_bucket(Bucket=app.config['S3_BUCKET'])
+    print(f"✅ S3 connection successful. Bucket: {app.config['S3_BUCKET']}")
+except ClientError as e:
+    print(f"❌ S3 connection failed: {e}")
+except NoCredentialsError:
+    print("❌ AWS credentials not found")
 
 class UploadForm(FlaskForm):
     file = FileField("File", validators=[DataRequired()])
@@ -60,8 +69,6 @@ class LoginForm(FlaskForm):
     email = StringField("Email",validators=[DataRequired(), Email()])
     password = PasswordField("Password",validators=[DataRequired()])
     submit = SubmitField("Login")
-
-
 
 @app.route('/')
 def index():
@@ -141,41 +148,54 @@ def upload_file():
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
 
+            try:
+                # Read file data and hash
+                file_data = file.read()
+                file_hash = compute_hash(file_data)
 
-            # Read file data and hash
-            file_data = file.read()
-            file_hash = compute_hash(file_data)
+                # Append hash to data before encryption
+                combined_data = f"{file_hash}::".encode() + file_data
 
-            # Append hash to data before encryption (e.g. as header)
-            combined_data = f"{file_hash}::".encode() + file_data
+                # Encrypt file before uploading
+                encrypted_data = encrypt_data(combined_data)
+                encrypted_stream = BytesIO(encrypted_data)
 
-            # Encrypt file before uploading
-            encrypted_data = encrypt_data(combined_data)
-            encrypted_stream = BytesIO(encrypted_data)
-
-            
-            # Upload to S3
-            s3.upload_fileobj(
-                file,
-                app.config["S3_BUCKET"],
-                unique_filename,
-                ExtraArgs={
-                    "ContentType": file.content_type
-                }
-            )
-            
-            # Store file info in database
-            user_id = session['user_id']
-            cursor = mysql.connection.cursor()
-            cursor.execute(
-                "INSERT INTO user_files (user_id, file_name, s3_key) VALUES (%s, %s, %s)",
-                (user_id, filename, unique_filename)
-            )
-            mysql.connection.commit()
-            cursor.close()
-            
-            flash("File uploaded successfully!")
-            return redirect(url_for('my_files'))
+                # Upload to S3 with better error handling
+                s3.upload_fileobj(
+                    encrypted_stream,
+                    app.config["S3_BUCKET"],
+                    unique_filename,
+                    ExtraArgs={
+                        "ContentType": "application/octet-stream",
+                        "ServerSideEncryption": "AES256"  # Add server-side encryption
+                    }
+                )
+                
+                # Store file info in database
+                user_id = session['user_id']
+                cursor = mysql.connection.cursor()
+                cursor.execute(
+                    "INSERT INTO user_files (user_id, file_name, s3_key) VALUES (%s, %s, %s)",
+                    (user_id, filename, unique_filename)
+                )
+                mysql.connection.commit()
+                cursor.close()
+                
+                flash(f"File '{filename}' uploaded successfully!", "success")
+                return redirect(url_for('my_files'))
+                
+            except ClientError as e:
+                error_code = e.response['Error']['Code']
+                if error_code == 'NoSuchBucket':
+                    flash("S3 bucket does not exist. Please check your configuration.", "danger")
+                elif error_code == 'AccessDenied':
+                    flash("Access denied to S3 bucket. Please check your AWS permissions.", "danger")
+                else:
+                    flash(f"AWS S3 error: {e}", "danger")
+                return redirect(url_for('upload_file'))
+            except Exception as e:
+                flash(f"Upload failed: {str(e)}", "danger")
+                return redirect(url_for('upload_file'))
     
     return render_template('upload.html', form=form)
 
@@ -207,36 +227,95 @@ def download_file(file_id):
     cursor.close()
     
     if not file_info:
-        flash("File not found or you don't have permission to download it.")
+        flash("File not found or you don't have permission to download it.", "danger")
         return redirect(url_for('my_files'))
     
     file_name = file_info[0]
     s3_key = file_info[1]
     
-    # Get file from S3
-    file_obj = BytesIO()
-    s3.download_fileobj(app.config["S3_BUCKET"], s3_key, file_obj)
-    file_obj.seek(0)
-
     try:
+        # Check if file exists in S3 first
+        try:
+            s3.head_object(Bucket=app.config["S3_BUCKET"], Key=s3_key)
+        except ClientError as e:
+            if e.response['Error']['Code'] == '404':
+                flash(f"File '{file_name}' not found in storage.", "danger")
+                return redirect(url_for('my_files'))
+            elif e.response['Error']['Code'] == '403':
+                flash("Access denied. Please check your AWS credentials and bucket permissions.", "danger")
+                return redirect(url_for('my_files'))
+            else:
+                raise e
+        
+        # Get file from S3
+        file_obj = BytesIO()
+        s3.download_fileobj(app.config["S3_BUCKET"], s3_key, file_obj)
+        file_obj.seek(0)
+
+        # Decrypt the data
         decrypted_data = decrypt_data(file_obj.read())
 
         # Split the hash from the content
         header, actual_file_data = decrypted_data.split(b"::", 1)
         original_hash = header.decode()
 
+        # Verify file integrity
         if not verify_hash(actual_file_data, original_hash):
             flash("File integrity check failed! The file may have been tampered with.", "danger")
             return redirect(url_for('my_files'))
+        
+        # Create BytesIO object for sending file
+        decrypted_file_obj = BytesIO(actual_file_data)
+        decrypted_file_obj.seek(0)
     
-            return send_file(
-            file_obj,
+        return send_file(
+            decrypted_file_obj,
             as_attachment=True,
-            download_name=file_name
-         )
+            download_name=file_name,
+            mimetype='application/octet-stream'
+        )
 
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        if error_code == 'NoSuchBucket':
+            flash("S3 bucket does not exist. Please check your configuration.", "danger")
+        elif error_code == 'AccessDenied' or error_code == '403':
+            flash("Access denied to S3. Please check your AWS credentials and permissions.", "danger")
+        elif error_code == 'NoSuchKey':
+            flash(f"File '{file_name}' not found in storage.", "danger")
+        else:
+            flash(f"AWS S3 error ({error_code}): {e}", "danger")
+        return redirect(url_for('my_files'))
     except Exception as e:
-        flash("An error occurred during decryption or integrity check.", "danger")
+        flash(f"Download failed: {str(e)}", "danger")
+        return redirect(url_for('my_files'))
+
+# Add a route to test S3 connection
+@app.route('/test-s3')
+def test_s3():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    try:
+        # Test bucket access
+        response = s3.head_bucket(Bucket=app.config['S3_BUCKET'])
+        
+        # List objects to test read permission
+        objects = s3.list_objects_v2(Bucket=app.config['S3_BUCKET'], MaxKeys=1)
+        
+        flash("S3 connection successful! Bucket is accessible.", "success")
+        return redirect(url_for('my_files'))
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        if error_code == 'NoSuchBucket':
+            flash("S3 bucket 'secure-file-share-bucket-cyber-knights' does not exist.", "danger")
+        elif error_code == '403' or error_code == 'AccessDenied':
+            flash("Access denied to S3 bucket. Check your AWS credentials and permissions.", "danger")
+        else:
+            flash(f"S3 connection failed ({error_code}): {e}", "danger")
+        return redirect(url_for('my_files'))
+    except Exception as e:
+        flash(f"S3 test failed: {str(e)}", "danger")
         return redirect(url_for('my_files'))
 
 if __name__ == '__main__':

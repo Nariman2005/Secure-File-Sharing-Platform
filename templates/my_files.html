@@ -1,45 +1,634 @@
 {% extends 'app.html' %}
 
 {% block content %}
-<div class="container auth-container">
-    <h2 class="page-title">My Files</h2>
+<div class="auth-container slide-up">
+    <h2 class="page-title fade-in">
+        <i class="fas fa-folder-open pulse-slow"></i>
+        My Secure Files
+    </h2>
+    <p class="page-subtitle fade-in delay-100">Manage and access your encrypted files</p>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-info">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="auth-card">
-        <a href="{{ url_for('upload_file') }}" class="btn btn-dark mb-3">Upload New File</a>
+    <div class="auth-card scale-in delay-200" style="max-width: 900px;">
+        <div class="files-header slide-right delay-300">
+            <div class="header-content">
+                <h4 class="header-title">
+                    <i class="fas fa-shield-alt text-primary me-2"></i>
+                    Your Encrypted Files
+                </h4>
+                <div class="header-stats">
+                    <span class="file-count">{{ files|length if files else 0 }} files</span>
+                </div>
+            </div>
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary hover-lift">
+                <i class="fas fa-plus me-1"></i>
+                Upload New File
+            </a>
+        </div>
 
         {% if files %}
-        <table class="table mt-3">
-            <thead>
-                <tr>
-                    <th>File Name</th>
-                    <th>Upload Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for file in files %}
-                <tr>
-                    <td>{{ file[1] }}</td>
-                    <td>{{ file[3] }}</td>
-                    <td>
-                        <a href="{{ url_for('download_file', file_id=file[0]) }}"
-                            class="btn btn-sm btn-success">Download</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="files-grid">
+            {% for file in files %}
+            <div class="file-item slide-up delay-{{ (loop.index0 * 100) + 400 }}">
+                <div class="file-card hover-lift">
+                    <div class="file-header">
+                        <div class="file-icon-wrapper">
+                            {% set ext = file[1].split('.')[-1].lower() if '.' in file[1] else 'file' %}
+                            {% if ext in ['jpg', 'jpeg', 'png', 'gif', 'svg'] %}
+                            <div class="file-icon image-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            {% elif ext in ['pdf'] %}
+                            <div class="file-icon pdf-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            {% elif ext in ['doc', 'docx'] %}
+                            <div class="file-icon doc-icon">
+                                <i class="fas fa-file-word"></i>
+                            </div>
+                            {% elif ext in ['xls', 'xlsx'] %}
+                            <div class="file-icon excel-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            {% elif ext in ['zip', 'rar', '7z'] %}
+                            <div class="file-icon archive-icon">
+                                <i class="fas fa-file-archive"></i>
+                            </div>
+                            {% elif ext in ['mp4', 'avi', 'mov'] %}
+                            <div class="file-icon video-icon">
+                                <i class="fas fa-file-video"></i>
+                            </div>
+                            {% elif ext in ['mp3', 'wav'] %}
+                            <div class="file-icon audio-icon">
+                                <i class="fas fa-file-audio"></i>
+                            </div>
+                            {% else %}
+                            <div class="file-icon default-icon">
+                                <i class="fas fa-file"></i>
+                            </div>
+                            {% endif %}
+                            <div class="file-type-badge">{{ ext.upper() if ext != 'file' else 'FILE' }}</div>
+                        </div>
+                        <div class="file-info">
+                            <h5 class="file-name" title="{{ file[1] }}">{{ file[1] }}</h5>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <span>{{ file[3] }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-shield-check me-1 text-success"></i>
+                                    <span>Encrypted</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="file-actions">
+                        <button class="action-btn primary-action hover-scale"
+                            onclick="downloadFile('{{ file[0] }}', this)">
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                        <button class="action-btn secondary-action hover-scale"
+                            onclick="shareFile('{{ file[1] }}', this)">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                        <button class="action-btn menu-action hover-scale"
+                            onclick="showFileMenu(this, '{{ file[0] }}')">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-        <p class="text-center mt-4">You haven't uploaded any files yet.</p>
+        <div class="empty-state bounce-in delay-400">
+            <div class="empty-icon float-slow">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <h4 class="empty-title">No Files Yet</h4>
+            <p class="empty-subtitle">Start by uploading your first secure file</p>
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg hover-lift">
+                <i class="fas fa-cloud-upload-alt me-2"></i>
+                Upload Your First File
+            </a>
+        </div>
         {% endif %}
     </div>
 </div>
+
+<!-- File Menu Dropdown -->
+<div class="file-menu" id="file-menu">
+    <div class="menu-item" onclick="renameFile()">
+        <i class="fas fa-edit me-2"></i>Rename
+    </div>
+    <div class="menu-item" onclick="fileDetails()">
+        <i class="fas fa-info-circle me-2"></i>Details
+    </div>
+    <div class="menu-item danger" onclick="deleteFile()">
+        <i class="fas fa-trash me-2"></i>Delete
+    </div>
+</div>
+
+<style>
+    /* My Files specific styles */
+    .auth-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .files-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+
+    .header-stats {
+        padding: 0.25rem 0.75rem;
+        background: var(--gray-100);
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .files-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .file-card {
+        background: white;
+        border-radius: 1rem;
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .file-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .file-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .file-icon-wrapper {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .file-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .file-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+        border-radius: inherit;
+    }
+
+    .image-icon {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+    }
+
+    .pdf-icon {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+
+    .doc-icon {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+
+    .excel-icon {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+    }
+
+    .archive-icon {
+        background: linear-gradient(135deg, #d97706, #b45309);
+    }
+
+    .video-icon {
+        background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    }
+
+    .audio-icon {
+        background: linear-gradient(135deg, #ec4899, #db2777);
+    }
+
+    .default-icon {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+    }
+
+    .file-type-badge {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        background: var(--gray-800);
+        color: white;
+        font-size: 0.6rem;
+        font-weight: 600;
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.25rem;
+        border: 2px solid white;
+    }
+
+    .file-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .file-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0 0 0.5rem 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.3;
+    }
+
+    .file-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .file-actions {
+        display: flex;
+        padding: 0 1.5rem 1.5rem;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        position: relative;
+        background: none;
+        border: 1px solid var(--gray-300);
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .primary-action {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .primary-action:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .secondary-action {
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .secondary-action:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .menu-action {
+        flex: 0 0 auto;
+        width: 40px;
+        padding: 0.5rem;
+    }
+
+    .menu-action:hover {
+        background: var(--gray-100);
+    }
+
+    .btn-ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+        pointer-events: none;
+    }
+
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        color: var(--gray-400);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-subtitle {
+        color: var(--gray-500);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .file-menu {
+        position: fixed;
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        min-width: 150px;
+        display: none;
+    }
+
+    .menu-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+    .menu-item:hover {
+        background: var(--gray-50);
+    }
+
+    .menu-item.danger {
+        color: var(--danger);
+    }
+
+    .menu-item.danger:hover {
+        background: rgba(220, 38, 38, 0.1);
+    }
+
+    /* Loading states */
+    .action-btn.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .action-btn.loading i {
+        animation: spin 1s linear infinite;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .files-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .files-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .header-content {
+            justify-content: center;
+        }
+
+        .file-actions {
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .file-header {
+            padding: 1rem;
+        }
+
+        .file-actions {
+            padding: 0 1rem 1rem;
+        }
+
+        .file-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+    }
+</style>
+
+<script>
+    let currentFileId = null;
+
+    function downloadFile(fileId, btn) {
+        // Add loading state
+        btn.classList.add('loading');
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner"></i><span>Downloading...</span>';
+
+        // Create ripple effect
+        createRipple(btn, event);
+
+        // Navigate to download
+        window.location.href = "{{ url_for('download_file', file_id='') }}" + fileId;
+
+        // Reset button after delay
+        setTimeout(() => {
+            btn.classList.remove('loading');
+            btn.innerHTML = originalContent;
+        }, 2000);
+    }
+
+    function shareFile(filename, btn) {
+        createRipple(btn, event);
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Secure File: ' + filename,
+                text: 'Check out this secure file I\'m sharing: ' + filename,
+                url: window.location.href
+            });
+        } else {
+            // Fallback for browsers that don't support Web Share API
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                // Show success feedback
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
+                btn.style.background = '#10b981';
+                btn.style.borderColor = '#10b981';
+                btn.style.color = 'white';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+    }
+
+    function showFileMenu(btn, fileId) {
+        const menu = document.getElementById('file-menu');
+        const rect = btn.getBoundingClientRect();
+
+        currentFileId = fileId;
+
+        menu.style.left = (rect.left - 120) + 'px';
+        menu.style.top = (rect.bottom + 5) + 'px';
+        menu.style.display = 'block';
+
+        // Close menu when clicking elsewhere
+        document.addEventListener('click', closeFileMenu);
+    }
+
+    function closeFileMenu(e) {
+        const menu = document.getElementById('file-menu');
+        if (!menu.contains(e.target)) {
+            menu.style.display = 'none';
+            document.removeEventListener('click', closeFileMenu);
+        }
+    }
+
+    function renameFile() {
+        const newName = prompt('Enter new filename:');
+        if (newName && currentFileId) {
+            // Implement rename functionality
+            console.log('Renaming file', currentFileId, 'to', newName);
+        }
+        closeFileMenu();
+    }
+
+    function fileDetails() {
+        // Implement file details modal
+        console.log('Showing details for file', currentFileId);
+        closeFileMenu();
+    }
+
+    function deleteFile() {
+        if (confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+            // Implement delete functionality
+            console.log('Deleting file', currentFileId);
+        }
+        closeFileMenu();
+    }
+
+    function createRipple(button, event) {
+        const circle = document.createElement('span');
+        const diameter = Math.max(button.clientWidth, button.clientHeight);
+        const radius = diameter / 2;
+
+        const rect = button.getBoundingClientRect();
+        circle.style.width = circle.style.height = diameter + 'px';
+        circle.style.left = (event.clientX - rect.left - radius) + 'px';
+        circle.style.top = (event.clientY - rect.top - radius) + 'px';
+        circle.classList.add('btn-ripple');
+
+        const existingRipple = button.querySelector('.btn-ripple');
+        if (existingRipple) {
+            existingRipple.remove();
+        }
+
+        button.appendChild(circle);
+    }
+
+    // Add stagger animations to file cards
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileCards = document.querySelectorAll('.file-card');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                }
+            });
+        });
+
+        fileCards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    });
+</script>
 {% endblock %}

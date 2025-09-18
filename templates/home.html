@@ -1,30 +1,791 @@
 {% extends 'app.html' %}
+
+{% block title %}Dashboard - SecureShare{% endblock %}
+
 {% block content %}
-
-<div class="container auth-container">
-    <h2 class="page-title">Welcome to Your Dashboard</h2>
-
-    <div class="auth-card">
-        {% if user %}
-        <h3 class="text-center mb-4">User Information</h3>
-        <div class="mb-4">
-            <p><strong>Name:</strong> {{ user[1] }}</p>
-            <p><strong>Email:</strong> {{ user[2] }}</p>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="mb-3">File Management</h4>
-            <div class="d-flex flex-column">
-                <a href="{{ url_for('upload_file') }}" class="btn btn-dark mb-2">Upload New File</a>
-                <a href="{{ url_for('my_files') }}" class="btn btn-success mb-4">View My Files</a>
+{% if user %}
+<!-- Dashboard Header -->
+<section class="dashboard-header slide-down">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="dashboard-title fade-in">Welcome back, {{ user[1] }}!</h1>
+                <p class="dashboard-subtitle fade-in delay-100">Manage your secure file transfers</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="fade-in delay-200">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg hover-lift pulse-slow">
+                        <i class="fas fa-plus me-2"></i>
+                        Send Files
+                    </a>
+                </div>
             </div>
         </div>
-
-        <div class="mt-3">
-            <a href="/logout" class="btn btn-secondary">Logout</a>
-        </div>
-        {% endif %}
     </div>
-</div>
+</section>
 
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card hover-lift slide-up delay-300">
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt float-slow"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="file-count">{{ files_count if files_count else '0' }}</div>
+                    <div class="stat-label">Your Files</div>
+                </div>
+                <div class="stat-decoration"></div>
+            </div>
+
+            <div class="stat-card hover-lift slide-up delay-400">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-alt float-slow"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Secure & Encrypted</div>
+                </div>
+                <div class="stat-decoration"></div>
+            </div>
+
+            <div class="stat-card hover-lift slide-up delay-500">
+                <div class="stat-icon">
+                    <i class="fas fa-cloud float-slow"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">AWS</div>
+                    <div class="stat-label">Cloud Storage</div>
+                </div>
+                <div class="stat-decoration"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="quick-actions">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="action-card scale-in delay-600">
+                    <div class="card-header">
+                        <div class="header-icon">
+                            <i class="fas fa-rocket pulse-slow"></i>
+                        </div>
+                        <div class="header-content">
+                            <h5 class="card-title">Quick Start</h5>
+                            <p class="card-subtitle">Get started with secure file sharing in just a few clicks.</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="action-buttons">
+                            <a href="{{ url_for('upload_file') }}"
+                                class="action-btn primary-action hover-lift slide-right delay-700">
+                                <div class="btn-icon">
+                                    <i class="fas fa-upload"></i>
+                                </div>
+                                <div class="btn-content">
+                                    <span class="btn-title">Upload Files</span>
+                                    <span class="btn-subtitle">Share your documents securely</span>
+                                </div>
+                                <i class="fas fa-arrow-right btn-arrow"></i>
+                            </a>
+
+                            <a href="{{ url_for('my_files') }}"
+                                class="action-btn secondary-action hover-lift slide-right delay-800">
+                                <div class="btn-icon">
+                                    <i class="fas fa-folder-open"></i>
+                                </div>
+                                <div class="btn-content">
+                                    <span class="btn-title">Browse Files</span>
+                                    <span class="btn-subtitle">Manage your uploaded content</span>
+                                </div>
+                                <i class="fas fa-arrow-right btn-arrow"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="user-card scale-in delay-700">
+                    <div class="user-avatar">
+                        <div class="avatar-image">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="status-indicator pulse-slow"></div>
+                    </div>
+                    <div class="user-info">
+                        <h6 class="user-name">{{ user[1] }}</h6>
+                        <p class="user-email">{{ user[2] }}</p>
+                        <div class="user-status">
+                            <i class="fas fa-circle"></i>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="user-action-btn hover-scale" onclick="editProfile()">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="user-action-btn hover-scale" onclick="showSettings()">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Security Features -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-header slide-up delay-800">
+            <h3 class="section-title">Security Features</h3>
+            <p class="section-subtitle">Your data protection is our top priority</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card hover-lift slide-up delay-900">
+                <div class="feature-icon">
+                    <i class="fas fa-lock float-slow"></i>
+                </div>
+                <div class="feature-content">
+                    <h5 class="feature-title">End-to-End Encryption</h5>
+                    <p class="feature-description">
+                        Your files are encrypted with AES-256 before upload and decrypted only when you download them.
+                    </p>
+                </div>
+                <div class="feature-decoration"></div>
+            </div>
+
+            <div class="feature-card hover-lift slide-up delay-1000">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud-upload-alt float-slow"></i>
+                </div>
+                <div class="feature-content">
+                    <h5 class="feature-title">Secure Cloud Storage</h5>
+                    <p class="feature-description">
+                        Files are stored on AWS S3 with enterprise-grade security and redundancy.
+                    </p>
+                </div>
+                <div class="feature-decoration"></div>
+            </div>
+
+            <div class="feature-card hover-lift slide-up delay-1100">
+                <div class="feature-icon">
+                    <i class="fas fa-user-shield float-slow"></i>
+                </div>
+                <div class="feature-content">
+                    <h5 class="feature-title">Private Access</h5>
+                    <p class="feature-description">
+                        Only you can access your files with your secure login credentials.
+                    </p>
+                </div>
+                <div class="feature-decoration"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% else %}
+<!-- Not logged in -->
+<section class="hero-section">
+    <div class="container">
+        <div class="auth-prompt fade-in">
+            <div class="prompt-icon bounce-in">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="prompt-title slide-up delay-200">Please log in to access your dashboard</h1>
+            <p class="prompt-subtitle slide-up delay-300">
+                Secure file sharing requires authentication to protect your data.
+            </p>
+            <div class="prompt-actions slide-up delay-400">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg hover-lift">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Login
+                </a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg hover-lift">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Create Account
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    /* Dashboard specific styles */
+    .dashboard-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 3rem 0 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.2rem;
+        color: var(--gray-600);
+        margin-bottom: 0;
+    }
+
+    .stats-section {
+        padding: 2rem 0;
+        background: var(--gray-50);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        border: 1px solid var(--gray-200);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, var(--primary), #60a5fa);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .stat-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .stat-decoration {
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.05));
+        border-radius: 50%;
+    }
+
+    .quick-actions {
+        padding: 3rem 0;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 1.5rem;
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card-header {
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .header-content {
+        flex: 1;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .card-subtitle {
+        color: var(--gray-600);
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid var(--gray-200);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .primary-action {
+        background: linear-gradient(135deg, var(--primary), #60a5fa);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .secondary-action {
+        background: white;
+        color: var(--gray-700);
+        border-color: var(--gray-200);
+    }
+
+    .secondary-action:hover {
+        background: var(--gray-50);
+        color: var(--primary);
+    }
+
+    .btn-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+    }
+
+    .secondary-action .btn-icon {
+        background: var(--gray-100);
+        color: var(--primary);
+    }
+
+    .btn-content {
+        flex: 1;
+    }
+
+    .btn-title {
+        display: block;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .btn-subtitle {
+        display: block;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .btn-arrow {
+        font-size: 1.25rem;
+        transition: transform 0.3s ease;
+    }
+
+    .action-btn:hover .btn-arrow {
+        transform: translateX(5px);
+    }
+
+    .user-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        border: 1px solid var(--gray-200);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .user-avatar {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-image {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), #60a5fa);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto;
+    }
+
+    .status-indicator {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 20px;
+        height: 20px;
+        background: #10b981;
+        border: 3px solid white;
+        border-radius: 50%;
+    }
+
+    .user-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+    }
+
+    .user-email {
+        color: var(--gray-600);
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .user-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+    }
+
+    .user-status i {
+        font-size: 0.5rem;
+    }
+
+    .user-actions {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .user-action-btn {
+        width: 40px;
+        height: 40px;
+        background: var(--gray-100);
+        border: none;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-600);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .user-action-btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .features-section {
+        padding: 4rem 0;
+        background: var(--gray-50);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: var(--gray-600);
+        margin: 0;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        border: 1px solid var(--gray-200);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, var(--primary), #60a5fa);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+        color: white;
+    }
+
+    .feature-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+
+    .feature-description {
+        color: var(--gray-600);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .feature-decoration {
+        position: absolute;
+        top: -30%;
+        right: -30%;
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.05));
+        border-radius: 50%;
+    }
+
+    /* Auth prompt styles */
+    .auth-prompt {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .prompt-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary), #60a5fa);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        margin: 0 auto 2rem;
+    }
+
+    .prompt-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+
+    .prompt-subtitle {
+        font-size: 1.2rem;
+        color: var(--gray-600);
+        margin-bottom: 2.5rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .prompt-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            padding: 1rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .prompt-title {
+            font-size: 2rem;
+        }
+
+        .prompt-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .prompt-actions .btn {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+
+    /* Counter animation */
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-number {
+        animation: countUp 0.6s ease-out;
+    }
+</style>
+
+<script>
+    function editProfile() {
+        alert('Profile editing feature coming soon!');
+    }
+
+    function showSettings() {
+        alert('Settings panel coming soon!');
+    }
+
+    // Animate stat numbers
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileCountElement = document.getElementById('file-count');
+        if (fileCountElement) {
+            const finalCount = parseInt(fileCountElement.textContent) || 0;
+            let currentCount = 0;
+            const increment = Math.ceil(finalCount / 20);
+
+            const counter = setInterval(() => {
+                currentCount += increment;
+                if (currentCount >= finalCount) {
+                    currentCount = finalCount;
+                    clearInterval(counter);
+                }
+                fileCountElement.textContent = currentCount;
+            }, 50);
+        }
+
+        // Add ripple effect to action buttons
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const rect = this.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                const size = 60;
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.width = size + 'px';
+                ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    });
+
+    // Add ripple styles
+    const style = document.createElement('style');
+    style.textContent = `
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+    document.head.appendChild(style);
+</script>
 {% endblock %}
