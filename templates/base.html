@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Secure File Sharing Platform{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+        }
+
+        .auth-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .file-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-actions {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">🔒 Secure File Sharing</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    {% if 'user_id' in session %}
+                    <a class="nav-link" href="{{ url_for('home') }}">🏠 Home</a>
+                    <a class="nav-link" href="{{ url_for('upload_file') }}">📤 Upload</a>
+                    <a class="nav-link" href="{{ url_for('my_files') }}">📁 My Files</a>
+                    <a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a>
+                    {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}">🔑 Login</a>
+                    <a class="nav-link" href="{{ url_for('register') }}">📝 Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'info' if category == 'info' else 'success' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <div class="container">
+            <p>&copy; 2025 Secure File Sharing Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -11,21 +11,22 @@ import uuid
 from io import BytesIO
 from crypto_utils import encrypt_data, compute_hash
 from crypto_utils import decrypt_data, verify_hash
+from config import Config
 
 app = Flask(__name__)
 
-# MySQL Configuration
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
-app.config['MYSQL_DB'] = 'my_schema'
-app.secret_key = 'your_secret_key_here'
+# Load configuration from config.py
+app.config['MYSQL_HOST'] = Config.MYSQL_HOST
+app.config['MYSQL_USER'] = Config.MYSQL_USER
+app.config['MYSQL_PASSWORD'] = Config.MYSQL_PASSWORD
+app.config['MYSQL_DB'] = Config.MYSQL_DB
+app.secret_key = Config.SECRET_KEY
 
 # AWS S3 Configuration
-app.config['S3_BUCKET'] = 'your-bucket-name'
-app.config['S3_KEY'] = 'your-access-key'
-app.config['S3_SECRET'] = 'your-secret-key'
-app.config['S3_LOCATION'] = 'https://{}.s3.amazonaws.com/'.format(app.config['S3_BUCKET'])
+app.config['S3_BUCKET'] = Config.S3_BUCKET
+app.config['S3_KEY'] = Config.S3_KEY
+app.config['S3_SECRET'] = Config.S3_SECRET
+app.config['S3_LOCATION'] = Config.S3_LOCATION
 
 
 mysql = MySQL(app)
